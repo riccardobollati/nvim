@@ -1,3 +1,6 @@
+-- Set up for autosession
+vim.o.sessionoptions = "buffers,curdir,tabpages,winsize,help,globals,skiprtp,folds,localoptions"
+
 -- Plugin setup
 require('packer').startup(function(use)
 
@@ -17,7 +20,19 @@ require('packer').startup(function(use)
 
   -- LSP config
   use 'neovim/nvim-lspconfig'          -- Collection of configs for built-in LSP
-
+use {
+  'rmagatti/auto-session',
+  config = function()
+    require("auto-session").setup {
+      log_level = "info",
+      auto_session_enable_last_session = false,
+      auto_session_root_dir = vim.fn.stdpath('data').."/sessions/",
+      auto_session_enabled = true,
+      auto_save_enabled = true,
+      auto_restore_enabled = false,
+    }
+  end
+}
   -- Autocompletion
   use 'hrsh7th/nvim-cmp'               -- Completion plugin
   use 'hrsh7th/cmp-nvim-lsp'           -- LSP source for nvim-cmp
@@ -94,10 +109,7 @@ cmp.setup({
       require('luasnip').lsp_expand(args.body)
     end,
   },
-  completion = {
-  	entries_limit = 5
-  },
-  mapping = cmp.mapping.preset.insert({
+ mapping = cmp.mapping.preset.insert({
         ['<Tab>'] = function(fallback)
       if cmp.visible() then
         cmp.confirm({ select = true })
@@ -109,9 +121,9 @@ cmp.setup({
     ['<CR>'] = cmp.mapping.confirm({ select = true }),
   }),
   sources = {
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
-    { name = 'buffer' }
+    { name = 'nvim_lsp' , max_item_count = 5 },
+    { name = 'luasnip' , max_item_count = 5},
+    { name = 'buffer' , max_item_count = 5}
   },
 })
 
@@ -141,6 +153,8 @@ vim.g.mapleader = " "
 
 vim.keymap.set('n', '<leader>b', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 
+vim.keymap.set("n", "<leader>v", ":vsplit | wincmd l <CR>", { desc = "open a vertical split and move to it" })
+
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
 vim.keymap.set("n", "<leader>fc", function()
   vim.lsp.buf.format({ async = true })
@@ -150,17 +164,39 @@ vim.keymap.set('n', '<leader>ff', '<cmd>Telescope find_files<cr>', {})
 vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<cr>', {})
 vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<cr>', {})
 vim.keymap.set('n', '<leader>fh', '<cmd>Telescope help_tags<cr>', {})
+-- Go to definition bindings
+vim.keymap.set('n', 'gdn', function()
+  vim.cmd('vsplit')  -- open a vertical split
+  vim.cmd('wincmd l')  -- move to the right split
+
+  vim.lsp.buf.definition()  -- jump to definition
+end, { desc = "Go to definition in vertical split" })
+
+vim.keymap.set('n', 'gds', function()
+vim.lsp.buf.definition()
+end, { desc = "Go to definition in the current page" })
+
+
 -- Diffview keymaps
 vim.keymap.set("n", "<leader>gd", ":DiffviewOpen<CR>", { desc = "Open Git diff view" })
 vim.keymap.set("n", "<leader>gq", ":DiffviewClose<CR>", { desc = "Close Git diff view" })
 -- Open a terminal
-vim.keymap.set('n', '<leader>t', function()
-  vim.cmd('vsplit | terminal')
-  vim.cmd('lcd ' .. vim.loop.cwd())
-end, { desc = "Open terminal in current working directory" })
+vim.keymap.set('n', '<leader>t', ':terminal<CR>')
+vim.api.nvim_set_keymap('t', '<Esc>', [[<C-\><C-n>]], { noremap = true })
 
 -- Easier window navigation with Ctrl + h/j/k/l
 vim.keymap.set('n', '<C-h>', '<C-w>h', { desc = "Move to left window" })
 vim.keymap.set('n', '<C-j>', '<C-w>j', { desc = "Move to below window" })
 vim.keymap.set('n', '<C-k>', '<C-w>k', { desc = "Move to above window" })
 vim.keymap.set('n', '<C-l>', '<C-w>l', { desc = "Move to right window" })
+
+-- Window resiszing
+vim.keymap.set('n', '<C-Up>',    ':resize +2<CR>')
+vim.keymap.set('n', '<C-Down>',  ':resize -2<CR>')
+vim.keymap.set('n', '<C-Left>',  ':vertical resize -2<CR>')
+vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>')
+
+-- Session menagement loading
+vim.keymap.set("n", "<leader>ss", "<cmd>SessionSave<CR>", { desc = "Save session" })
+vim.keymap.set("n", "<leader>sr", "<cmd>SessionRestore<CR>", { desc = "Restore last session" })
+vim.keymap.set("n", "<leader>sd", "<cmd>SessionDelete<CR>", { desc = "Delete session" })
