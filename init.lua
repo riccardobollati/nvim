@@ -33,6 +33,13 @@ use {
     }
   end
 }
+-- Comment lines
+use {
+  'numToStr/Comment.nvim',
+  config = function()
+    require('Comment').setup()
+  end
+}
   -- Autocompletion
   use 'hrsh7th/nvim-cmp'               -- Completion plugin
   use 'hrsh7th/cmp-nvim-lsp'           -- LSP source for nvim-cmp
