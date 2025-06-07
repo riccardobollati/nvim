@@ -147,6 +147,13 @@ require('telescope').setup{
 
 require('telescope').load_extension('fzf') -- to make telescope faster
 
+-- Auto indentation
+vim.o.autoindent = true
+vim.o.smartindent = true
+vim.o.smarttab = true
+vim.o.expandtab = true
+vim.o.shiftwidth = 2  -- number of spaces per indentation level
+vim.o.tabstop = 2     -- number of spaces that a <Tab> inserts
 
 -- Basic configs
 vim.opt.number = true
