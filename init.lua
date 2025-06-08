@@ -87,6 +87,7 @@ end)
 local lspconfig = require('lspconfig')
 lspconfig.pyright.setup({})
 lspconfig.ts_ls.setup({})
+lspconfig.clangd.setup({})
 
 require('nvim-ts-autotag').setup()
 -- Set up tsx highliter
@@ -104,6 +105,9 @@ null_ls.setup({
   sources = {
     null_ls.builtins.formatting.prettier.with({
       filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "html", "css" },
+    }),
+        null_ls.builtins.formatting.clang_format.with({
+      filetypes = { "c", "cpp" },
     }),
   },
 })
@@ -168,6 +172,7 @@ vim.g.mapleader = " "
 vim.keymap.set('n', '<leader>b', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 
 vim.keymap.set("n", "<leader>v", ":vsplit | wincmd l <CR>", { desc = "open a vertical split and move to it" })
+vim.keymap.set("n", "<leader>h", ":split | wincmd j <CR>", { desc = "open a vertical split and move to it" })
 
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
 vim.keymap.set("n", "<leader>fc", function()
@@ -214,3 +219,34 @@ vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>')
 vim.keymap.set("n", "<leader>ss", "<cmd>SessionSave<CR>", { desc = "Save session" })
 vim.keymap.set("n", "<leader>sr", "<cmd>SessionRestore<CR>", { desc = "Restore last session" })
 vim.keymap.set("n", "<leader>sd", "<cmd>SessionDelete<CR>", { desc = "Delete session" })
+
+-- these shortucs maximize the cirrent window size and restore it to the original
+-- Variable to store previous window sizes
+local window_restore = {}
+
+-- Maximize current window
+vim.keymap.set("n", "<leader>wm", function()
+  -- Save current window dimensions
+  local winid = vim.api.nvim_get_current_win()
+  window_restore[winid] = {
+    width = vim.api.nvim_win_get_width(winid),
+    height = vim.api.nvim_win_get_height(winid)
+  }
+
+  -- Maximize window
+  vim.cmd("wincmd |") -- Maximize horizontally
+  vim.cmd("wincmd _") -- Maximize vertically
+end, { desc = "Maximize current window" })
+
+-- Restore previous window size
+vim.keymap.set("n", "<leader>wr", function()
+  local winid = vim.api.nvim_get_current_win()
+  local size = window_restore[winid]
+
+  if size then
+    vim.api.nvim_win_set_width(winid, size.width)
+    vim.api.nvim_win_set_height(winid, size.height)
+  else
+    vim.notify("No previous window size saved", vim.log.levels.WARN)
+  end
+end, { desc = "Restore previous window size" })
