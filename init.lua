@@ -1,6 +1,3 @@
--- Set up for autosession
-vim.o.sessionoptions = "buffers,curdir,tabpages,winsize,help,globals,skiprtp,folds,localoptions"
-
 -- Plugin setup
 require('packer').startup(function(use)
 
@@ -21,19 +18,7 @@ require('packer').startup(function(use)
 
   -- LSP config
   use 'neovim/nvim-lspconfig'          -- Collection of configs for built-in LSP
-use {
-  'rmagatti/auto-session',
-  config = function()
-    require("auto-session").setup {
-      log_level = "info",
-      auto_session_enable_last_session = false,
-      auto_session_root_dir = vim.fn.stdpath('data').."/sessions/",
-      auto_session_enabled = true,
-      auto_save_enabled = true,
-      auto_restore_enabled = false,
-    }
-  end
-}
+
   -- Comment lines
   use {
     'numToStr/Comment.nvim',
@@ -221,11 +206,6 @@ vim.keymap.set('n', '<C-Up>',    ':resize +2<CR>')
 vim.keymap.set('n', '<C-Down>',  ':resize -2<CR>')
 vim.keymap.set('n', '<C-Left>',  ':vertical resize -2<CR>')
 vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>')
-
--- Session menagement loading
-vim.keymap.set("n", "<leader>ss", "<cmd>SessionSave<CR>", { desc = "Save session" })
-vim.keymap.set("n", "<leader>sr", "<cmd>SessionRestore<CR>", { desc = "Restore last session" })
-vim.keymap.set("n", "<leader>sd", "<cmd>SessionDelete<CR>", { desc = "Delete session" })
 
 -- these shortucs maximize the cirrent window size and restore it to the original
 -- Variable to store previous window sizes
