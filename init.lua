@@ -14,6 +14,7 @@ require('packer').startup(function(use)
 
   -- Themes
   use "ellisonleao/gruvbox.nvim"
+  use "n1ghtmare/noirblaze-vim"
   
   -- Packer
   use 'wbthomason/packer.nvim'
@@ -33,26 +34,28 @@ use {
     }
   end
 }
--- Comment lines
-use {
-  'numToStr/Comment.nvim',
-  config = function()
-    require('Comment').setup()
-  end
-}
+  -- Comment lines
+  use {
+    'numToStr/Comment.nvim',
+      config = function()
+        require('Comment').setup()
+      end
+  }
+  -- markers
+  use "chentoast/marks.nvim"
   -- Autocompletion
   use 'hrsh7th/nvim-cmp'               -- Completion plugin
   use 'hrsh7th/cmp-nvim-lsp'           -- LSP source for nvim-cmp
   use 'L3MON4D3/LuaSnip'               -- Snippet engine
   use 'saadparwaiz1/cmp_luasnip'       -- Snippet source for nvim-cmp
   use {
-  'nvim-treesitter/nvim-treesitter',
-  run = ':TSUpdate'
-}
+    'nvim-treesitter/nvim-treesitter',
+    run = ':TSUpdate'
+  }
 	use 'nvimtools/none-ls.nvim'
 	use 'nvim-lua/plenary.nvim'
--- autocompletition tsx
-use 'windwp/nvim-ts-autotag'
+  -- autocompletition tsx
+  use 'windwp/nvim-ts-autotag'
 
   -- File explorer (like VS Code sidebar)
   use {
@@ -90,6 +93,8 @@ lspconfig.ts_ls.setup({})
 lspconfig.clangd.setup({})
 
 require('nvim-ts-autotag').setup()
+-- marks
+require'marks'.setup {}
 -- Set up tsx highliter
 require'nvim-treesitter.configs'.setup {
   ensure_installed = { "tsx", "typescript", "javascript", "html", "css" },
@@ -163,8 +168,10 @@ vim.o.tabstop = 2     -- number of spaces that a <Tab> inserts
 vim.opt.number = true
 vim.opt.relativenumber = true
 
+-- theme configs
 vim.o.background = "dark"
 vim.cmd[[colorscheme gruvbox]] -- Theme configs
+-- vim.cmd("colorscheme noirblaze")
 
 -- Shortcuts
 vim.g.mapleader = " "
@@ -238,6 +245,8 @@ vim.keymap.set("n", "<leader>wm", function()
   vim.cmd("wincmd _") -- Maximize vertically
 end, { desc = "Maximize current window" })
 
+-- see function desc
+vim.api.nvim_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', { noremap = true, silent = true })
 -- Restore previous window size
 vim.keymap.set("n", "<leader>wr", function()
   local winid = vim.api.nvim_get_current_win()
