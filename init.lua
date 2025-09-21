@@ -176,17 +176,23 @@ vim.keymap.set('n', '<leader>fg', '<cmd>Telescope live_grep<cr>', {})
 vim.keymap.set('n', '<leader>fb', '<cmd>Telescope buffers<cr>', {})
 vim.keymap.set('n', '<leader>fh', '<cmd>Telescope help_tags<cr>', {})
 -- Go to definition bindings
-vim.keymap.set('n', 'gdn', function()
+vim.keymap.set('n', 'gdv', function()
   vim.cmd('vsplit')  -- open a vertical split
   vim.cmd('wincmd l')  -- move to the right split
 
   vim.lsp.buf.definition()  -- jump to definition
 end, { desc = "Go to definition in vertical split" })
 
+vim.keymap.set('n', 'gdh', function()
+  vim.cmd('split')  -- open a horizontal split
+  vim.cmd('wincmd l')  -- move to the right split
+
+  vim.lsp.buf.definition()  -- jump to definition
+end, { desc = "Go to definition in a horizontal split" })
+
 vim.keymap.set('n', 'gds', function()
 vim.lsp.buf.definition()
 end, { desc = "Go to definition in the current page" })
-
 
 -- Diffview keymaps
 vim.keymap.set("n", "<leader>gd", ":DiffviewOpen<CR>", { desc = "Open Git diff view" })
