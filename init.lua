@@ -1,6 +1,7 @@
 -- Plugin setup
 require('packer').startup(function(use)
 
+
 	  -- Telescope (fuzzy finder)
   use {
     'nvim-telescope/telescope.nvim',
@@ -47,7 +48,7 @@ require('packer').startup(function(use)
     'nvim-tree/nvim-tree.lua',
     requires = { 'nvim-tree/nvim-web-devicons' },
     config = function()
-      require('nvim-tree').setup()
+      require('nvim-tree')
     end
   }
   -- Git plugins
@@ -77,18 +78,54 @@ lspconfig.pyright.setup({})
 lspconfig.ts_ls.setup({})
 lspconfig.clangd.setup({})
 
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+if ok_cmp then
+  capabilities = cmp_lsp.default_capabilities(capabilities)
+end
+
+local on_attach = function(client, bufnr)
+  -- Optional: buffer-local keymaps for LSP (you already have some global ones)
+  local bufmap = function(mode, lhs, rhs, desc)
+    vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+  end
+end
+
 require('nvim-ts-autotag').setup()
 -- marks
 require'marks'.setup {}
 -- Set up tsx highliter
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = { "tsx", "typescript", "javascript", "html", "css" },
+  ensure_installed = { "tsx", "typescript", "javascript", "html", "css", "hcl", "terraform" },
   highlight = {
     enable = true,
   },
 }
+lspconfig.terraformls.setup({
+  capabilities = capabilities,
+  on_attach = on_attach,
+  settings = { ["terraform-ls"] = { } }, -- defaults are good
+})
+
+-- Filetype tweaks for Terraform/HCL
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "*.tfvars" },
+  callback = function(args)
+    vim.bo[args.buf].filetype = "terraform"
+  end,
+})
+
+-- (Optional) Treat .terraformrc / terraform.rc as hcl
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { ".terraformrc", "terraform.rc", "*.hcl" },
+  callback = function(args)
+    vim.bo[args.buf].filetype = "hcl"
+  end,
+})
+
 require('nvim-ts-autotag').setup()
 -- Set up null-ls (formatter)
+-- Set up null-ls (formatter + tflint with guards)
 local null_ls = require("null-ls")
 
 null_ls.setup({
@@ -99,8 +136,20 @@ null_ls.setup({
         null_ls.builtins.formatting.clang_format.with({
       filetypes = { "c", "cpp" },
     }),
+        null_ls.builtins.formatting.black.with({
+      extra_args = { "--fast" }, -- optional: faster, skips some checks
+    }),
   },
 })
+-- Setup nvim-tree
+require('nvim-tree').setup {
+  filters = {
+    dotfiles = false,  
+  },
+  git = {
+    ignore = false,    
+  }
+}
 
 -- Setup nvim-cmp
 local cmp = require'cmp'
@@ -136,6 +185,11 @@ require('telescope').setup{
       preview_width = 0.6,
     },
     file_ignore_patterns = {"node_modules", "%.git"},
+  },
+  pickers = {
+    find_files = {
+      hidden = true
+    }
   }
 }
 
