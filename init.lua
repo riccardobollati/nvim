@@ -35,7 +35,6 @@ require('packer').startup(function(use)
     },
     config = function()
       require('neogit').setup({
-        kind = "floating",
         integrations = {
           diffview = true, -- integrates Neogit with Diffview
         },
@@ -331,7 +330,7 @@ vim.keymap.set("n", "<leader>gd", ":DiffviewOpen<CR>", { desc = "Open Git diff v
 vim.keymap.set("n", "<leader>gq", ":DiffviewClose<CR>", { desc = "Close Git diff view" })
 -- neogit
 vim.keymap.set("n", "<leader>gg", function()
-  require("neogit").open()
+  require("neogit").open({ kind = "split" })
 end, { desc = "Open Neogit" })
 
 -- Open a terminal
