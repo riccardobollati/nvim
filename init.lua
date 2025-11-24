@@ -26,6 +26,26 @@ require('packer').startup(function(use)
     end
   }
 
+  -- neogit
+  use {
+    'NeogitOrg/neogit',
+    requires = {
+      'nvim-lua/plenary.nvim',
+      'sindrets/diffview.nvim', -- recommended
+    },
+    config = function()
+      require('neogit').setup({
+        kind = "floating",
+        integrations = {
+          diffview = true, -- integrates Neogit with Diffview
+        },
+        popup = {
+          kind = "floating", -- also makes popups (commit popup etc.) float
+        },
+      })
+    end
+  }
+
   -- markers
   use "chentoast/marks.nvim"
 
@@ -108,12 +128,23 @@ vim.lsp.config('clangd', common)
 vim.lsp.config('terraformls', vim.tbl_extend('force', common, {
   settings = { ["terraform-ls"] = {} }, -- defaults are fine
 }))
+vim.lsp.config('tailwindcss', vim.tbl_extend('force', common, {
+  filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "tsx" },
+  root_dir = vim.fs.root(0, {
+    'tailwind.config.js',
+    'tailwind.config.ts',
+    'postcss.config.js',
+    'package.json',
+    '.git',
+  }),
+}))
 
 -- Enable servers so they auto-attach
 vim.lsp.enable('pyright')
 vim.lsp.enable('ts_ls')
 vim.lsp.enable('clangd')
 vim.lsp.enable('terraformls')
+vim.lsp.enable('tailwindcss')
 
 ---------------------------------------------------------------------
 -- Treesitter, autotag, marks
@@ -298,6 +329,10 @@ end, { desc = "Go to definition in the current page" })
 -- Diffview keymaps
 vim.keymap.set("n", "<leader>gd", ":DiffviewOpen<CR>", { desc = "Open Git diff view" })
 vim.keymap.set("n", "<leader>gq", ":DiffviewClose<CR>", { desc = "Close Git diff view" })
+-- neogit
+vim.keymap.set("n", "<leader>gg", function()
+  require("neogit").open()
+end, { desc = "Open Neogit" })
 
 -- Open a terminal
 vim.keymap.set('n', '<leader>t', ':terminal<CR>')
